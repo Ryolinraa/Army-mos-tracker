@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Army MOS History Tracker (1985-Present)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .timeline-line { width: 2px; background: #4b5563; position: absolute; left: 20px; top: 0; bottom: 0; }
+        .timeline-dot { width: 12px; height: 12px; background: #fbbf24; border-radius: 50%; position: absolute; left: 15px; }
+    </style>
+</head>
+<body class="bg-stone-100 text-slate-900 font-sans">
+
+    <div class="max-w-4xl mx-auto p-6">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-extrabold text-slate-800">MOS <span class="text-amber-600">Time Machine</span></h1>
+            <p class="text-slate-600 mt-2">Track Enlisted & Warrant Officer designations from 1985 to Present</p>
+        </header>
+
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border-t-4 border-amber-500">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">MOS Code</label>
+                    <input type="text" id="mosInput" placeholder="e.g., 63B or 13B" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Year of Service</label>
+                    <input type="number" id="yearInput" value="2026" min="1985" max="2026" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="searchMOS()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-700 transition">Search Lineage</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsArea" class="hidden">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <span class="bg-amber-100 text-amber-800 py-1 px-3 rounded-md mr-2">Results</span>
+            </h2>
+            
+            <div id="timelineContainer" class="relative pl-12 space-y-8">
+                </div>
+        </div>
+
+        <div id="emptyState" class="text-center py-20 text-slate-400">
+            Enter an MOS and year to see how it has changed over time.
+        </div>
+    </div>
+
+    <script>
+        // STARTER DATABASE: Tracks merges and consolidations
+        const mosDatabase = [
+            {
+                category: "Enlisted - Maintenance",
+                lineage: [
+                    { years: "1985-2004", code: "63B", title: "Light-Wheel Vehicle Mechanic" },
+                    { years: "2004-Present", code: "91B", title: "Wheeled Vehicle Mechanic (Consolidated 63B, 63S, 63W)" }
+                ]
+            },
+            {
+                category: "Enlisted - Field Artillery",
+                lineage: [
+                    { years: "1985-2004", code: "13B", title: "Cannon Crewmember" },
+                    { years: "2004-Present", code: "13B", title: "Cannon Crewmember (Title remained, skill requirements updated)" }
+                ]
+            },
+            {
+                category: "Warrant Officer - Aviation",
+                lineage: [
+                    { years: "1985-2004", code: "153A", title: "Rotary Wing Aviator" },
+                    { years: "2004-Present", code: "153A", title: "Rotary Wing Aviator (Maintained under Aviation Branch realignment)" }
+                ]
+            },
+            {
+                category: "Enlisted - Signal",
+                lineage: [
+                    { years: "1985-2004", code: "31L", title: "Wire Systems Installer" },
+                    { years: "2004-2015", code: "25L", title: "Cable Systems Installer" },
+                    { years: "2015-Present", code: "25L/25U", title: "Consolidated into Signal Support Systems Specialist" }
+                ]
+            },
+            {
+                category: "Enlisted - Infantry",
+                lineage: [
+                    { years: "1985-2004", code: "11M", title: "Fighting Vehicle Infantryman" },
+                    { years: "2004-Present", code: "11B", title: "Infantryman (11M merged into 11B)" }
+                ]
+            }
+        ];
+
+        function searchMOS() {
+            const inputMos = document.getElementById('mosInput').value.toUpperCase().trim();
+            const inputYear = parseInt(document.getElementById('yearInput').value);
+            const container = document.getElementById('timelineContainer');
+            const resultsArea = document.getElementById('resultsArea');
+            const emptyState = document.getElementById('emptyState');
+
+            const record = mosDatabase.find(group => 
+                group.lineage.some(entry => {
+                    const [start, endStr] = entry.years.split('-');
+                    const end = endStr === "Present" ? 2026 : parseInt(endStr);
+                    return entry.code === inputMos && inputYear >= parseInt(start) && inputYear <= end;
+                })
+            );
+
+            container.innerHTML = '<div class="timeline-line"></div>';
+
+            if (record) {
+                emptyState.classList.add('hidden');
+                resultsArea.classList.remove('hidden');
+
+                record.lineage.forEach((entry, index) => {
+                    const item = document.createElement('div');
+                    item.className = "relative";
+                    item.innerHTML = `
+                        <div class="timeline-dot mt-2"></div>
+                        <div class="bg-white p-5 rounded-lg shadow border border-slate-200 ml-4">
+                            <span class="text-xs font-bold text-amber-600 uppercase">${entry.years}</span>
+                            <h3 class="text-xl font-bold text-slate-800">${entry.code}</h3>
+                            <p class="text-slate-600">${entry.title}</p>
+                            ${index === record.lineage.length - 1 ? '<span class="mt-2 inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Current Variant</span>' : ''}
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            } else {
+                alert("MOS not found in starter database. Try '11M' for 1990 or '63B' for 1995.");
+            }
+        }
+    </script>
+</body>
+</html>
