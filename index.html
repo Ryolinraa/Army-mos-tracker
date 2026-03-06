@@ -50,26 +50,27 @@
 
     <script>
         // STARTER DATABASE: Tracks merges and consolidations
+        // UPDATED VERIFIED DATABASE (1985-Present)
         const mosDatabase = [
             {
-                category: "Enlisted - Maintenance",
+                category: "Enlisted - Maintenance (Ordnance)",
                 lineage: [
-                    { years: "1985-2004", code: "63B", title: "Light-Wheel Vehicle Mechanic" },
+                    { years: "1985-2009", code: "63B", title: "Light-Wheel Vehicle Mechanic (Official transition began 2004, finalized 2009)" },
                     { years: "2004-Present", code: "91B", title: "Wheeled Vehicle Mechanic (Consolidated 63B, 63S, 63W)" }
                 ]
             },
             {
-                category: "Enlisted - Field Artillery",
+                category: "Enlisted - Medical",
                 lineage: [
-                    { years: "1985-2004", code: "13B", title: "Cannon Crewmember" },
-                    { years: "2004-Present", code: "13B", title: "Cannon Crewmember (Title remained, skill requirements updated)" }
+                    { years: "1985-2001", code: "91B", title: "Medical Specialist (Warning: Pre-2001 code was Medical, not Mechanic)" },
+                    { years: "2001-Present", code: "68W", title: "Combat Medic Specialist" }
                 ]
             },
             {
-                category: "Warrant Officer - Aviation",
+                category: "Enlisted - Infantry",
                 lineage: [
-                    { years: "1985-2004", code: "153A", title: "Rotary Wing Aviator" },
-                    { years: "2004-Present", code: "153A", title: "Rotary Wing Aviator (Maintained under Aviation Branch realignment)" }
+                    { years: "1985-2005", code: "11M", title: "Fighting Vehicle Infantryman" },
+                    { years: "2001-Present", code: "11B", title: "Infantryman (11M merged into 11B)" }
                 ]
             },
             {
@@ -77,14 +78,28 @@
                 lineage: [
                     { years: "1985-2004", code: "31L", title: "Wire Systems Installer" },
                     { years: "2004-2015", code: "25L", title: "Cable Systems Installer" },
-                    { years: "2015-Present", code: "25L/25U", title: "Consolidated into Signal Support Systems Specialist" }
+                    { years: "2015-Present", code: "25L/25U", title: "Signal Support Systems Specialist (Consolidated)" }
                 ]
             },
             {
-                category: "Enlisted - Infantry",
+                category: "Warrant Officer - Aviation",
                 lineage: [
-                    { years: "1985-2004", code: "11M", title: "Fighting Vehicle Infantryman" },
-                    { years: "2004-Present", code: "11B", title: "Infantryman (11M merged into 11B)" }
+                    { years: "1985-2004", code: "100B", title: "Utility/Observation Helicopter Pilot" },
+                    { years: "2004-Present", code: "153A", title: "Rotary Wing Aviator (Consolidated 100-series into 153A)" }
+                ]
+            },
+            {
+                category: "Warrant Officer - Intelligence",
+                lineage: [
+                    { years: "1985-2006", code: "351B", title: "Counterintelligence Agent" },
+                    { years: "2006-Present", code: "351L", title: "Counterintelligence Technician" }
+                ]
+            },
+            {
+                category: "Enlisted - Admin",
+                lineage: [
+                    { years: "1985-2003", code: "71L", title: "Administrative Specialist" },
+                    { years: "2003-Present", code: "42A", title: "Human Resources Specialist (Consolidated 71L, 71G)" }
                 ]
             }
         ];
