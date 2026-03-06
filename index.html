@@ -465,13 +465,36 @@
       // Sort timeline
       const sorted = [...fam.entries].sort((a, b) => Number(a.start) - Number(b.start));
 
-      // Filter based on "clip to year"
-      const visible = showFuture
-        ? sorted
-        : sorted.filter(e => Number(e.start) <= Number(year));
+        const matchedEntry = getEntryForCodeInYear(fam, inputMosNorm, year);
 
-      const activeEntries = getActiveEntryForYear(fam, year);
-      const matchedEntry = getEntryForCodeInYear(fam, inputMosNorm, year);
+        // Determine lineage chain for the matched entry
+        let lineageCodes = new Set();
+        
+        function collectLineage(entry) {
+          if (!entry) return;
+          lineageCodes.add(entry.code);
+        
+          if (entry.fromCodes && entry.fromCodes.length) {
+            entry.fromCodes.forEach(code => {
+              const parent = fam.entries.find(e => e.code === code);
+              if (parent && !lineageCodes.has(parent.code)) {
+                collectLineage(parent);
+              }
+            });
+          }
+        }
+        
+        collectLineage(matchedEntry);
+        
+        // Active entries (ONLY lineage)
+        const activeEntries = getActiveEntryForYear(fam, year).filter(e => lineageCodes.has(e.code));
+        
+        // Filter only lineage-related entries (and clip future unless toggled)
+        const visible = sorted.filter(e => {
+          const inLineage = lineageCodes.has(e.code);
+          const inYearWindow = showFuture ? true : Number(e.start) <= Number(year);
+          return inLineage && inYearWindow;
+        });
 
       renderBanner({
         inputMos: inputMosNorm,
@@ -481,7 +504,6 @@
         matchedEntry,
         showFuture
       });
-
       container.innerHTML = `<div class="timeline-line"></div>`;
 
       visible.forEach(entry => {
@@ -533,7 +555,7 @@
 
       // If the user clipped and we hid future entries that exist, show a small note at end.
       if (!showFuture) {
-        const hasFuture = sorted.some(e => Number(e.start) > Number(year));
+        const hasFuture = sorted.some(e => lineageCodes.has(e.code) && Number(e.start) > Number(year));
         if (hasFuture) {
           const note = document.createElement("div");
           note.className = "ml-4 text-xs text-slate-500";
