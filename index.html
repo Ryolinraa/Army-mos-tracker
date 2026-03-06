@@ -205,16 +205,20 @@
       },
 
       {
-        familyId: "wheeled_vehicle_maint_63_to_91b",
+        familyId: "wheeled_vehicle_maint_63_to_91",
+        cmf: "91",
         category: "Maintenance (CMF 91 / legacy 63-series)",
         component: "Enlisted",
-        notes: "This is the mechanic lineage. 91B was also used historically as a medical MOS in earlier eras; time-range resolves ambiguity.",
+        notes: "Mechanic lineage: legacy 63-series merged into the 91-series. Year boundaries are starter values—verify against your authoritative source set.",
+        // quick pointers (helps future CMF-based lookups without duplicating entries)
+        currentCode: "91B",
+        legacyCodes: ["63B", "63S", "63W"],
+      
         entries: [
-          { code: "63B", title: "Light-Wheel Vehicle Mechanic", start: 1985, end: 2009, aliases: ["63B10", "63B1O", "63B20", "63B2O"] },
-          { code: "63S", title: "Heavy Wheel Vehicle Mechanic", start: 1985, end: 2009 },
-          { code: "63W", title: "Wheel Vehicle Repairer", start: 1985, end: 2009 },
-
-          // Mechanic 91B
+          { code: "63B", title: "Light-Wheel Vehicle Mechanic", start: 1985, end: 2004, aliases: ["63B10", "63B20", "63B1O", "63B2O"] },
+          { code: "63S", title: "Heavy Wheel Vehicle Mechanic", start: 1985, end: 2004 },
+          { code: "63W", title: "Wheel Vehicle Repairer", start: 1985, end: 2004 },
+      
           {
             code: "91B",
             title: "Wheeled Vehicle Mechanic",
@@ -222,9 +226,14 @@
             end: null,
             changeType: "merged",
             fromCodes: ["63B", "63S", "63W"],
-            aliases: ["91B10", "91B1O", "91B20", "91B2O"],
-            notes: "Mechanic 91B (not legacy medical 91B)."
-          }
+            aliases: ["91B10", "91B20", "91B1O", "91B2O"],
+            notes: "Mechanic 91B (distinct from legacy medical 91B)."
+          },
+      
+          // add more 91-series specialties here over time
+          { code: "91C", title: "Utilities Equipment Repairer", start: 2004, end: null },
+          { code: "91F", title: "Small Arms/Artillery Repairer", start: 2004, end: null },
+          { code: "91H", title: "Track Vehicle Repairer", start: 2004, end: null }
         ]
       },
 
@@ -273,20 +282,17 @@
       },
 
       {
-        familyId: "wo_ci_351b_to_351l",
-        category: "Warrant Officer - Intelligence",
-        component: "Warrant Officer",
-        entries: [
-          { code: "351B", title: "Counterintelligence Agent", start: 1985, end: 2006 },
-          { code: "351L", title: "Counterintelligence Technician", start: 2006, end: null, changeType: "redesignated", fromCodes: ["351B"] }
-        ]
-      },
-
-      {
         familyId: "sf_cmf18",
         category: "Special Forces (CMF 18)",
         component: "Enlisted",
-        notes: "Starter CMF 18 set (core MOS). Expand/verify any timeline adjustments based on your authoritative source set.",
+        static: true,   // optional flag for clarity
+      
+        advisory: {
+          title: "Special Forces (CMF 18) Note",
+          message:
+            "Special Forces MOS designations are qualification-based and generally stable over time. For complex cases, consult official MOS references or a subject matter expert."
+        },
+      
         entries: [
           { code: "18B", title: "Special Forces Weapons Sergeant", start: 1985, end: null },
           { code: "18C", title: "Special Forces Engineer Sergeant", start: 1985, end: null },
@@ -297,7 +303,19 @@
         ]
       }
     ];
-
+// OPTIONAL: CMF index (navigation/grouping). Keeps CMF references DRY.
+    const cmfIndex = [
+      {
+        cmf: "91",
+        name: "Maintenance (CMF 91)",
+        families: ["wheeled_vehicle_maint_63_to_91"]
+      },
+      {
+        cmf: "18",
+        name: "Special Forces (CMF 18)",
+        families: ["sf_cmf18"]
+      }
+    ];
     /************************************************************
      * INDEXES
      ************************************************************/
