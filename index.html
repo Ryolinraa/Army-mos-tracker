@@ -1,218 +1,579 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Army MOS History Tracker (1985-Present)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .timeline-line { width: 2px; background: #4b5563; position: absolute; left: 20px; top: 0; bottom: 0; }
-        .timeline-dot { width: 12px; height: 12px; background: #fbbf24; border-radius: 50%; position: absolute; left: 15px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Army MOS History Tracker (1985–Present)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .timeline-line { width: 2px; background: #4b5563; position: absolute; left: 20px; top: 0; bottom: 0; }
+    .timeline-dot { width: 12px; height: 12px; border-radius: 9999px; position: absolute; left: 15px; top: 18px; }
+  </style>
 </head>
+
 <body class="bg-stone-100 text-slate-900 font-sans">
+  <div class="max-w-4xl mx-auto p-6">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-extrabold text-slate-800">
+        MOS <span class="text-amber-600">Time Machine</span>
+      </h1>
+      <p class="text-slate-600 mt-2">Track Enlisted, Warrant Officer, and Special Forces (CMF 18) MOS lineage from 1985 to Present</p>
+      <p class="text-xs text-slate-500 mt-2">
+        Starter dataset + scalable structure. Expand <code>mosFamilies</code> as you add verified mappings.
+      </p>
+    </header>
 
-    <div class="max-w-4xl mx-auto p-6">
-        <header class="mb-10 text-center">
-            <h1 class="text-4xl font-extrabold text-slate-800">MOS <span class="text-amber-600">Time Machine</span></h1>
-            <p class="text-slate-600 mt-2">Track Enlisted & Warrant Officer designations from 1985 to Present</p>
-        </header>
-
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border-t-4 border-amber-500">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-bold mb-1">MOS Code</label>
-                    <input type="text" id="mosInput" placeholder="e.g., 63B or 13B" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold mb-1">Year of Service</label>
-                    <input type="number" id="yearInput" value="2026" min="1985" max="2026" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="searchMOS()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-700 transition">Search Lineage</button>
-                </div>
-            </div>
+    <!-- INPUT CARD -->
+    <div class="bg-white p-6 rounded-xl shadow-md mb-8 border-t-4 border-amber-500">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-bold mb-1">MOS Code</label>
+          <input
+            type="text"
+            id="mosInput"
+            placeholder="e.g., 63B or 13B or 18B"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+          />
+          <p class="text-xs text-slate-500 mt-1">
+            Tip: Try <strong>63B</strong>, <strong>91B</strong>, <strong>95B</strong>, <strong>31B</strong>, <strong>11M</strong>, <strong>11B</strong>, <strong>18B</strong>, <strong>153A</strong>
+          </p>
         </div>
 
-        <div id="resultsArea" class="hidden">
-            <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <span class="bg-amber-100 text-amber-800 py-1 px-3 rounded-md mr-2">Results</span>
-            </h2>
-            
-            <div id="timelineContainer" class="relative pl-12 space-y-8">
-                </div>
+        <div>
+          <label class="block text-sm font-bold mb-1">Year of Service</label>
+          <input
+            type="number"
+            id="yearInput"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+          />
+          <p class="text-xs text-slate-500 mt-1">
+            Supports 1985–<span id="currentYearLabel"></span>
+          </p>
         </div>
 
-        <div id="emptyState" class="text-center py-20 text-slate-400">
-            Enter an MOS and year to see how it has changed over time.
+        <div class="flex items-end">
+          <button
+            id="searchBtn"
+            class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-700 transition"
+          >
+            Search Lineage
+          </button>
         </div>
+      </div>
     </div>
 
-    <script>
-        // STARTER DATABASE: Tracks merges and consolidations
-        // UPDATED VERIFIED DATABASE (1985-Present)
-       const mosDatabase = [
-            {
-                category: "Infantry (CMF 11)",
-                lineage: [
-                    { years: "1985-2005", code: "11M", title: "Fighting Vehicle Infantryman" },
-                    { years: "1985-2005", code: "11H", title: "Heavy Anti-Armor Weapons Specialist" },
-                    { years: "1985-Present", code: "11B", title: "Infantryman (Consolidated 11M and 11H)" },
-                    { years: "1985-Present", code: "11C", title: "Indirect Fire Infantryman" }
-                ]
-            },
-            {
-                category: "Combat Engineers (CMF 12/21)",
-                lineage: [
-                    { years: "1985-2004", code: "12B", title: "Combat Engineer" },
-                    { years: "2004-2009", code: "21B", title: "Combat Engineer (Temporary CMF Shift)" },
-                    { years: "2009-Present", code: "12B", title: "Combat Engineer (Reverted to 12B)" }
-                ]
-            },
-            {
-                category: "Field Artillery (CMF 13)",
-                lineage: [
-                    { years: "1985-Present", code: "13B", title: "Cannon Crewmember" },
-                    { years: "1985-Present", code: "13F", title: "Fire Support Specialist" },
-                    { years: "1985-2004", code: "13R", title: "Field Artillery Finder Radar Operator" },
-                    { years: "2004-Present", code: "13R", title: "Field Artillery Firefinder Radar Operator (Title Change)" }
-                ]
-            },
-            {
-                category: "Aviation (CMF 15/67)",
-                lineage: [
-                    { years: "1985-2004", code: "67N", title: "UH-1 Helicopter Repairer" },
-                    { years: "1985-2004", code: "67Y", title: "AH-1 Attack Helicopter Repairer" },
-                    { years: "2004-Present", code: "15T", title: "UH-60 Helicopter Repairer" },
-                    { years: "2004-Present", code: "15U", title: "CH-47 Helicopter Repairer" },
-                    { years: "2025-Present", code: "15X", title: "Unmanned Aircraft Systems Specialist (Consolidating 15E and 15W)" }
-                ]
-            },
-            {
-                category: "Armor/Cavalry (CMF 19)",
-                lineage: [
-                    { years: "1985-2004", code: "19E", title: "M60A3 Armor Crewman" },
-                    { years: "1985-Present", code: "19K", title: "M1 Armor Crewman (19E merged into 19K)" },
-                    { years: "1985-Present", code: "19D", title: "Cavalry Scout" }
-                ]
-            },
-            {
-                category: "Signal (CMF 25/31)",
-                lineage: [
-                    { years: "1985-2004", code: "31L", title: "Wire Systems Installer" },
-                    { years: "1985-2004", code: "31F", title: "Network Switching Systems Operator" },
-                    { years: "2004-2022", code: "25L", title: "Cable Systems Installer-Maintainer" },
-                    { years: "2004-2022", code: "25N", title: "Nodal Network Systems Operator" },
-                    { years: "2022-Present", code: "25H", title: "Network Communication Systems Specialist (Consolidated 25L, 25N, 25Q)" }
-                ]
-            },
-            {
-                category: "Military Police (CMF 31/95)",
-                lineage: [
-                    { years: "1985-2003", code: "95B", title: "Military Police" },
-                    { years: "2003-Present", code: "31B", title: "Military Police (CMF changed from 95 to 31)" }
-                ]
-            },
-            {
-                category: "Intelligence (CMF 35/96)",
-                lineage: [
-                    { years: "1985-2004", code: "96B", title: "Intelligence Analyst" },
-                    { years: "2004-Present", code: "35F", title: "Intelligence Analyst (Shifted from 96 to 35 series)" }
-                ]
-            },
-            {
-                category: "Admin/HR (CMF 42/71)",
-                lineage: [
-                    { years: "1985-2003", code: "71L", title: "Administrative Specialist" },
-                    { years: "1985-2003", code: "71G", title: "Patient Administration Specialist" },
-                    { years: "2003-Present", code: "42A", title: "Human Resources Specialist" }
-                ]
-            },
-            {
-                category: "Medical (CMF 68/91)",
-                lineage: [
-                    { years: "1985-2001", code: "91B", title: "Medical Specialist (Warning: Legacy Code)" },
-                    { years: "2001-Present", code: "68W", title: "Combat Medic Specialist" }
-                ]
-            },
-            {
-                category: "Transportation (CMF 88)",
-                lineage: [
-                    { years: "1985-Present", code: "88M", title: "Motor Transport Operator" },
-                    { years: "1985-Present", code: "88N", title: "Transportation Mgmt Coordinator" }
-                ]
-            },
-            {
-                category: "Maintenance (CMF 91/63)",
-                lineage: [
-                    { years: "1985-2009", code: "63B", title: "Light-Wheel Vehicle Mechanic" },
-                    { years: "1985-2009", code: "63S", title: "Heavy Wheel Vehicle Mechanic" },
-                    { years: "1985-2009", code: "63W", title: "Wheel Vehicle Repairer" },
-                    { years: "2004-Present", code: "91B", title: "Wheeled Vehicle Mechanic" }
-                ]
-            },
-            {
-                category: "Supply/Logistics (CMF 92/76)",
-                lineage: [
-                    { years: "1985-2004", code: "76Y", title: "Unit Supply Specialist" },
-                    { years: "2004-Present", code: "92Y", title: "Unit Supply Specialist (Shifted from 76 to 92 series)" }
-                ]
-            },
-            {
-                category: "Warrant Officer - Aviation",
-                lineage: [
-                    { years: "1985-2004", code: "100B", title: "Utility/Observation Helicopter Pilot" },
-                    { years: "2004-Present", code: "153A", title: "Rotary Wing Aviator" }
-                ]
-            },
-            {
-                category: "Warrant Officer - Intelligence",
-                lineage: [
-                    { years: "1985-2006", code: "351B", title: "Counterintelligence Agent" },
-                    { years: "2006-Present", code: "351L", title: "Counterintelligence Technician" }
-                ]
+    <!-- RESULTS -->
+    <div id="resultsArea" class="hidden">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <h2 class="text-2xl font-bold flex items-center">
+          <span class="bg-amber-100 text-amber-800 py-1 px-3 rounded-md mr-2">Results</span>
+          <span id="resultsHeader" class="text-slate-800"></span>
+        </h2>
+
+        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 select-none">
+          <input id="toggleFuture" type="checkbox" class="h-4 w-4 accent-amber-600" />
+          Show changes after selected year
+        </label>
+      </div>
+
+      <div id="summaryBanner" class="mb-6"></div>
+
+      <div id="timelineContainer" class="relative pl-12 space-y-6"></div>
+    </div>
+
+    <!-- EMPTY -->
+    <div id="emptyState" class="text-center py-20 text-slate-400">
+      Enter an MOS and year to see how it has changed over time.
+    </div>
+  </div>
+
+  <script>
+    /************************************************************
+     * CONFIG
+     ************************************************************/
+    const CURRENT_YEAR = new Date().getFullYear();
+    const MIN_YEAR = 1985;
+
+    const yearInput = document.getElementById("yearInput");
+    const currentYearLabel = document.getElementById("currentYearLabel");
+    currentYearLabel.textContent = String(CURRENT_YEAR);
+
+    yearInput.min = String(MIN_YEAR);
+    yearInput.max = String(CURRENT_YEAR);
+    yearInput.value = String(CURRENT_YEAR);
+
+    function normalizeMos(raw) {
+      const s = String(raw || "").toUpperCase().trim();
+
+      // Remove common separators
+      const cleaned = s.replace(/[\s\-_/()]/g, "");
+
+      // Pull base MOS from the beginning:
+      // - Enlisted format often like 63B, 11B, 25H, 35F, 18B (2 digits + letter)
+      // - WO format often like 153A (3 digits + letter)
+      // This grabs: 2-3 digits + 1 letter (and optionally another digit if ever needed).
+      const m = cleaned.match(/^(\d{2,3}[A-Z])/);
+      return m ? m[1] : cleaned;
+    }
+
+    function inRange(year, start, end) {
+      const e = (end === null) ? CURRENT_YEAR : Number(end);
+      return Number(year) >= Number(start) && Number(year) <= e;
+    }
+
+    function fmtEnd(end) {
+      return end === null ? "Present" : String(end);
+    }
+
+    function rangeLabel(entry) {
+      return `${entry.start}–${fmtEnd(entry.end)}`;
+    }
+
+    /************************************************************
+     * STARTER DATASET (EXPAND THIS)
+     *
+     * Structure:
+     * mosFamilies: [
+     *   {
+     *     familyId, category, component, notes,
+     *     entries: [{ code, title, start, end, aliases?, changeType?, fromCodes?, notes? }]
+     *   }
+     * ]
+     ************************************************************/
+    const mosFamilies = [
+      {
+        familyId: "infantry_11_series",
+        category: "Infantry (CMF 11)",
+        component: "Enlisted",
+        notes: "Starter lineage. Expand with additional 11-series MOS as needed.",
+        entries: [
+          { code: "11M", title: "Fighting Vehicle Infantryman", start: 1985, end: 2001 },
+          { code: "11H", title: "Heavy Anti-Armor Weapons Specialist", start: 1985, end: 2001 },
+          {
+            code: "11B",
+            title: "Infantryman",
+            start: 1985,
+            end: null,
+            changeType: "merged",
+            fromCodes: ["11M", "11H"],
+            notes: "Absorbed 11M/11H in 2001."
+          },
+          { code: "11C", title: "Indirect Fire Infantryman", start: 1985, end: null }
+        ]
+      },
+
+      {
+        familyId: "field_artillery_13_series",
+        category: "Field Artillery (CMF 13)",
+        component: "Enlisted",
+        notes: "Starter lineage. Add more 13-series MOS for broader coverage.",
+        entries: [
+          { code: "13B", title: "Cannon Crewmember", start: 1985, end: null },
+          { code: "13F", title: "Fire Support Specialist", start: 1985, end: null },
+          { code: "13R", title: "Field Artillery Firefinder Radar Operator", start: 1985, end: null, notes: "Title standardization changes occurred over time; validate per your source set." }
+        ]
+      },
+
+      {
+        familyId: "military_police_95_to_31",
+        category: "Military Police (CMF 31 / legacy 95-series)",
+        component: "Enlisted",
+        entries: [
+          { code: "95B", title: "Military Police", start: 1985, end: 2003 },
+          { code: "31B", title: "Military Police", start: 2003, end: null, changeType: "redesignated", fromCodes: ["95B"] }
+        ]
+      },
+
+      {
+        familyId: "intel_96b_to_35f",
+        category: "Intelligence (CMF 35 / legacy 96-series)",
+        component: "Enlisted",
+        entries: [
+          { code: "96B", title: "Intelligence Analyst", start: 1985, end: 2004 },
+          { code: "35F", title: "Intelligence Analyst", start: 2004, end: null, changeType: "redesignated", fromCodes: ["96B"] }
+        ]
+      },
+
+      {
+        familyId: "supply_76y_to_92y",
+        category: "Supply/Logistics (CMF 92 / legacy 76-series)",
+        component: "Enlisted",
+        entries: [
+          { code: "76Y", title: "Unit Supply Specialist", start: 1985, end: 2004 },
+          { code: "92Y", title: "Unit Supply Specialist", start: 2004, end: null, changeType: "redesignated", fromCodes: ["76Y"] }
+        ]
+      },
+
+      {
+        familyId: "wheeled_vehicle_maint_63_to_91b",
+        category: "Maintenance (CMF 91 / legacy 63-series)",
+        component: "Enlisted",
+        notes: "This is the mechanic lineage. 91B was also used historically as a medical MOS in earlier eras; time-range resolves ambiguity.",
+        entries: [
+          { code: "63B", title: "Light-Wheel Vehicle Mechanic", start: 1985, end: 2009, aliases: ["63B10", "63B1O", "63B20", "63B2O"] },
+          { code: "63S", title: "Heavy Wheel Vehicle Mechanic", start: 1985, end: 2009 },
+          { code: "63W", title: "Wheel Vehicle Repairer", start: 1985, end: 2009 },
+
+          // Mechanic 91B
+          {
+            code: "91B",
+            title: "Wheeled Vehicle Mechanic",
+            start: 2004,
+            end: null,
+            changeType: "merged",
+            fromCodes: ["63B", "63S", "63W"],
+            aliases: ["91B10", "91B1O", "91B20", "91B2O"],
+            notes: "Mechanic 91B (not legacy medical 91B)."
+          }
+        ]
+      },
+
+      {
+        familyId: "combat_medic_91b_to_68w",
+        category: "Medical (CMF 68 / legacy medical 91-series)",
+        component: "Enlisted",
+        notes: "Demonstrates code reuse handling. Medical 91B is time-bounded here.",
+        entries: [
+          { code: "91B", title: "Medical Specialist (Legacy)", start: 1985, end: 2001, notes: "Legacy medical 91B (distinct from mechanic 91B above)." },
+          { code: "68W", title: "Combat Medic Specialist", start: 2001, end: null, changeType: "redesignated", fromCodes: ["91B"] }
+        ]
+      },
+
+      {
+        familyId: "signal_convergence_25h",
+        category: "Signal (CMF 25 / legacy 31-series)",
+        component: "Enlisted",
+        notes: "Starter lineage. Signal has multiple convergence phases—expand cautiously with verified sources.",
+        entries: [
+          { code: "31L", title: "Wire Systems Installer", start: 1985, end: 2004 },
+          { code: "25L", title: "Cable Systems Installer-Maintainer", start: 2004, end: 2022, changeType: "redesignated", fromCodes: ["31L"] },
+          { code: "25N", title: "Nodal Network Systems Operator", start: 2004, end: 2022 },
+          { code: "25Q", title: "Multichannel Transmission Systems Operator-Maintainer", start: 2004, end: 2022 },
+          { code: "25W", title: "Telecommunications Operations Specialist", start: 2004, end: 2022 },
+          {
+            code: "25H",
+            title: "Network Communication Systems Specialist",
+            start: 2022,
+            end: null,
+            changeType: "merged",
+            fromCodes: ["25N", "25Q", "25W"],
+            notes: "Some 25L functions shift depending on phase; treat as starter mapping."
+          }
+        ]
+      },
+
+      {
+        familyId: "wo_aviation_pilot_100b_to_153a",
+        category: "Warrant Officer - Aviation",
+        component: "Warrant Officer",
+        entries: [
+          { code: "100B", title: "Utility/Observation Helicopter Pilot", start: 1985, end: 2004 },
+          { code: "153A", title: "Rotary Wing Aviator", start: 2004, end: null, changeType: "redesignated", fromCodes: ["100B"] }
+        ]
+      },
+
+      {
+        familyId: "wo_ci_351b_to_351l",
+        category: "Warrant Officer - Intelligence",
+        component: "Warrant Officer",
+        entries: [
+          { code: "351B", title: "Counterintelligence Agent", start: 1985, end: 2006 },
+          { code: "351L", title: "Counterintelligence Technician", start: 2006, end: null, changeType: "redesignated", fromCodes: ["351B"] }
+        ]
+      },
+
+      {
+        familyId: "sf_cmf18",
+        category: "Special Forces (CMF 18)",
+        component: "Enlisted",
+        notes: "Starter CMF 18 set (core MOS). Expand/verify any timeline adjustments based on your authoritative source set.",
+        entries: [
+          { code: "18B", title: "Special Forces Weapons Sergeant", start: 1985, end: null },
+          { code: "18C", title: "Special Forces Engineer Sergeant", start: 1985, end: null },
+          { code: "18D", title: "Special Forces Medical Sergeant", start: 1985, end: null },
+          { code: "18E", title: "Special Forces Communications Sergeant", start: 1985, end: null },
+          { code: "18F", title: "Special Forces Intelligence Sergeant", start: 1985, end: null },
+          { code: "18Z", title: "Special Forces Senior Sergeant", start: 1985, end: null }
+        ]
+      }
+    ];
+
+    /************************************************************
+     * INDEXES
+     ************************************************************/
+    const codeIndex = (() => {
+      // Map base code and aliases -> array of { familyId, entry }
+      const map = new Map();
+
+      for (const fam of mosFamilies) {
+        for (const entry of fam.entries) {
+          const base = entry.code.toUpperCase();
+          if (!map.has(base)) map.set(base, []);
+          map.get(base).push({ familyId: fam.familyId, entry });
+
+          if (Array.isArray(entry.aliases)) {
+            for (const a of entry.aliases) {
+              const alias = normalizeMos(a);
+              if (!map.has(alias)) map.set(alias, []);
+              map.get(alias).push({ familyId: fam.familyId, entry });
             }
-        ];
-
-        function searchMOS() {
-            const inputMos = document.getElementById('mosInput').value.toUpperCase().trim();
-            const inputYear = parseInt(document.getElementById('yearInput').value);
-            const container = document.getElementById('timelineContainer');
-            const resultsArea = document.getElementById('resultsArea');
-            const emptyState = document.getElementById('emptyState');
-
-            const record = mosDatabase.find(group => 
-                group.lineage.some(entry => {
-                    const [start, endStr] = entry.years.split('-');
-                    const end = endStr === "Present" ? 2026 : parseInt(endStr);
-                    return entry.code === inputMos && inputYear >= parseInt(start) && inputYear <= end;
-                })
-            );
-
-            container.innerHTML = '<div class="timeline-line"></div>';
-
-            if (record) {
-                emptyState.classList.add('hidden');
-                resultsArea.classList.remove('hidden');
-
-                record.lineage.forEach((entry, index) => {
-                    const item = document.createElement('div');
-                    item.className = "relative";
-                    item.innerHTML = `
-                        <div class="timeline-dot mt-2"></div>
-                        <div class="bg-white p-5 rounded-lg shadow border border-slate-200 ml-4">
-                            <span class="text-xs font-bold text-amber-600 uppercase">${entry.years}</span>
-                            <h3 class="text-xl font-bold text-slate-800">${entry.code}</h3>
-                            <p class="text-slate-600">${entry.title}</p>
-                            ${index === record.lineage.length - 1 ? '<span class="mt-2 inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Current Variant</span>' : ''}
-                        </div>
-                    `;
-                    container.appendChild(item);
-                });
-            } else {
-                alert("MOS not found in starter database. Try '11M' for 1990 or '63B' for 1995.");
-            }
+          }
         }
-    </script>
+      }
+      return map;
+    })();
+
+    function getFamilyById(id) {
+      return mosFamilies.find(f => f.familyId === id) || null;
+    }
+
+    function findFamiliesForInput(inputCodeNorm) {
+      // returns array of families that include this code or alias anywhere
+      const hits = codeIndex.get(inputCodeNorm) || [];
+      const familyIds = Array.from(new Set(hits.map(h => h.familyId)));
+      return familyIds.map(getFamilyById).filter(Boolean);
+    }
+
+    function findBestFamilyForYear(families, inputCodeNorm, year) {
+      // Prefer a family where the input code is actually active in the selected year.
+      // If none, fall back to the first family.
+      let fallback = families[0] || null;
+
+      for (const fam of families) {
+        const entryActive = fam.entries.some(e => {
+          const matchesCode = (e.code.toUpperCase() === inputCodeNorm) ||
+            (Array.isArray(e.aliases) && e.aliases.some(a => normalizeMos(a) === inputCodeNorm));
+          return matchesCode && inRange(year, e.start, e.end);
+        });
+        if (entryActive) return fam;
+      }
+      return fallback;
+    }
+
+    function getActiveEntryForYear(fam, year) {
+      // Return all entries active in the given year (some families can have multiple concurrent codes)
+      const sorted = [...fam.entries].sort((a, b) => Number(a.start) - Number(b.start));
+      return sorted.filter(e => inRange(year, e.start, e.end));
+    }
+
+    function getEntryForCodeInYear(fam, inputCodeNorm, year) {
+      // Prefer an entry that matches code AND is active in year.
+      const sorted = [...fam.entries].sort((a, b) => Number(a.start) - Number(b.start));
+      const exactActive = sorted.find(e => {
+        const matchesCode =
+          (e.code.toUpperCase() === inputCodeNorm) ||
+          (Array.isArray(e.aliases) && e.aliases.some(a => normalizeMos(a) === inputCodeNorm));
+        return matchesCode && inRange(year, e.start, e.end);
+      });
+      if (exactActive) return exactActive;
+
+      // Otherwise, return any entry that matches code (even if not active that year)
+      const anyMatch = sorted.find(e => {
+        return (e.code.toUpperCase() === inputCodeNorm) ||
+          (Array.isArray(e.aliases) && e.aliases.some(a => normalizeMos(a) === inputCodeNorm));
+      });
+      return anyMatch || null;
+    }
+
+    /************************************************************
+     * RENDER
+     ************************************************************/
+    function badge(label, text, tone = "slate") {
+      const toneMap = {
+        slate: "bg-slate-100 text-slate-700",
+        amber: "bg-amber-50 text-amber-800",
+        green: "bg-green-100 text-green-800",
+        red: "bg-red-100 text-red-800"
+      };
+      const cls = toneMap[tone] || toneMap.slate;
+      return `
+        <span class="inline-flex items-center ${cls} text-[11px] font-semibold px-2 py-1 rounded-md mr-1 mb-1">
+          ${label}: <span class="ml-1 font-bold">${text}</span>
+        </span>
+      `;
+    }
+
+    function renderBanner({ inputMos, year, fam, activeEntries, matchedEntry, showFuture }) {
+      const summary = document.getElementById("summaryBanner");
+
+      const activeLabel = activeEntries.length
+        ? activeEntries.map(e => `${e.code} — ${e.title}`).join(" | ")
+        : "No entry in this family is marked active in the selected year.";
+
+      const matchStatus = matchedEntry
+        ? (inRange(year, matchedEntry.start, matchedEntry.end)
+            ? badge("Your MOS in this year", `${matchedEntry.code} — ${matchedEntry.title}`, "green")
+            : badge("Your MOS found (not active this year)", `${matchedEntry.code} — ${matchedEntry.title}`, "amber"))
+        : badge("Your MOS", "Not found in this family", "red");
+
+      const futureNote = showFuture
+        ? badge("Timeline view", `Showing full lineage (including after ${year})`, "slate")
+        : badge("Timeline view", `Clipped to ≤ ${year} (recommended for service-year context)`, "slate");
+
+      summary.innerHTML = `
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="text-sm text-slate-700">
+              <span class="font-semibold">Family:</span> ${fam.category} <span class="text-slate-400">•</span>
+              <span class="font-semibold">Component:</span> ${fam.component}
+            </div>
+            <div class="text-sm text-slate-700">
+              <span class="font-semibold">Query:</span> <span class="font-bold">${inputMos}</span> in <span class="font-bold">${year}</span>
+            </div>
+          </div>
+
+          <div class="mt-3 flex flex-wrap">
+            ${matchStatus}
+            ${badge("Active in selected year", activeLabel, activeEntries.length ? "green" : "amber")}
+            ${futureNote}
+          </div>
+
+          ${fam.notes ? `<div class="mt-2 text-xs text-slate-500">${fam.notes}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function renderTimeline(fam, inputMosNorm, year, showFuture) {
+      const container = document.getElementById("timelineContainer");
+      const resultsHeader = document.getElementById("resultsHeader");
+      const emptyState = document.getElementById("emptyState");
+      const resultsArea = document.getElementById("resultsArea");
+
+      // Show UI
+      emptyState.classList.add("hidden");
+      resultsArea.classList.remove("hidden");
+      resultsHeader.textContent = fam.category;
+
+      // Sort timeline
+      const sorted = [...fam.entries].sort((a, b) => Number(a.start) - Number(b.start));
+
+      // Filter based on "clip to year"
+      const visible = showFuture
+        ? sorted
+        : sorted.filter(e => Number(e.start) <= Number(year));
+
+      const activeEntries = getActiveEntryForYear(fam, year);
+      const matchedEntry = getEntryForCodeInYear(fam, inputMosNorm, year);
+
+      renderBanner({
+        inputMos: inputMosNorm,
+        year,
+        fam,
+        activeEntries,
+        matchedEntry,
+        showFuture
+      });
+
+      container.innerHTML = `<div class="timeline-line"></div>`;
+
+      visible.forEach(entry => {
+        const isActive = inRange(year, entry.start, entry.end);
+        const isInputMatch =
+          (entry.code.toUpperCase() === inputMosNorm) ||
+          (Array.isArray(entry.aliases) && entry.aliases.some(a => normalizeMos(a) === inputMosNorm));
+
+        const isFuture = Number(entry.start) > Number(year);
+
+        const dotColor = isActive ? "bg-green-500" : (isInputMatch ? "bg-amber-400" : "bg-slate-400");
+        const cardBorder = isActive ? "border-green-200" : (isInputMatch ? "border-amber-200" : "border-slate-200");
+        const cardBg = isFuture ? "bg-slate-50" : (isActive ? "bg-green-50" : "bg-white");
+
+        const relBadges = [];
+        if (entry.changeType && entry.fromCodes && entry.fromCodes.length) {
+          const label = entry.changeType === "merged" ? "Merged from" :
+                        entry.changeType === "split" ? "Split from" :
+                        entry.changeType === "redesignated" ? "Redesignated from" :
+                        "From";
+          relBadges.push(badge(label, entry.fromCodes.join(", "), "slate"));
+        }
+        if (entry.notes) relBadges.push(badge("Note", entry.notes, "amber"));
+
+        const item = document.createElement("div");
+        item.className = "relative";
+
+        item.innerHTML = `
+          <div class="timeline-dot ${dotColor}"></div>
+          <div class="${cardBg} p-5 rounded-lg shadow-sm border ${cardBorder} ml-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-slate-700 uppercase">${rangeLabel(entry)}</span>
+              <div class="flex gap-2">
+                ${isActive ? `<span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold">Active in ${year}</span>` : ""}
+                ${isInputMatch ? `<span class="inline-block bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-bold">Your MOS</span>` : ""}
+                ${isFuture ? `<span class="inline-block bg-slate-200 text-slate-700 text-xs px-2 py-1 rounded font-bold">After ${year}</span>` : ""}
+              </div>
+            </div>
+
+            <h3 class="text-xl font-extrabold text-slate-900 mt-1">${entry.code}</h3>
+            <p class="text-slate-700 font-medium">${entry.title}</p>
+
+            ${relBadges.length ? `<div class="mt-3 flex flex-wrap">${relBadges.join("")}</div>` : ""}
+          </div>
+        `;
+
+        container.appendChild(item);
+      });
+
+      // If the user clipped and we hid future entries that exist, show a small note at end.
+      if (!showFuture) {
+        const hasFuture = sorted.some(e => Number(e.start) > Number(year));
+        if (hasFuture) {
+          const note = document.createElement("div");
+          note.className = "ml-4 text-xs text-slate-500";
+          note.innerHTML = `Future changes exist after ${year}. Use “Show changes after selected year” to view them.`;
+          container.appendChild(note);
+        }
+      }
+
+      // Scroll to results for better UX
+      document.getElementById("resultsArea").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    /************************************************************
+     * SEARCH
+     ************************************************************/
+    function searchMOS() {
+      const inputMosNorm = normalizeMos(document.getElementById("mosInput").value);
+      const year = Number(document.getElementById("yearInput").value);
+      const showFuture = document.getElementById("toggleFuture").checked;
+
+      if (!inputMosNorm) {
+        alert("Please enter an MOS code (e.g., 11B, 63B, 25H, 18B, 153A).");
+        return;
+      }
+      if (!Number.isFinite(year) || year < MIN_YEAR || year > CURRENT_YEAR) {
+        alert(`Please enter a valid year between ${MIN_YEAR} and ${CURRENT_YEAR}.`);
+        return;
+      }
+
+      const families = findFamiliesForInput(inputMosNorm);
+      if (!families.length) {
+        alert(
+          `MOS "${inputMosNorm}" is not in this starter dataset.\n\n` +
+          `Try: 63B (1995), 91B (2012), 95B (2000), 31B (2010), 11M (1995), 11B (2005), 18B (2018), 153A (2020)`
+        );
+        return;
+      }
+
+      const best = findBestFamilyForYear(families, inputMosNorm, year);
+      renderTimeline(best, inputMosNorm, year, showFuture);
+    }
+
+    /************************************************************
+     * EVENTS
+     ************************************************************/
+    document.getElementById("searchBtn").addEventListener("click", searchMOS);
+    document.getElementById("toggleFuture").addEventListener("change", () => {
+      // Re-run search to re-render with the new toggle setting, if results are already visible.
+      const resultsArea = document.getElementById("resultsArea");
+      if (!resultsArea.classList.contains("hidden")) searchMOS();
+    });
+
+    document.getElementById("mosInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchMOS();
+    });
+    document.getElementById("yearInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchMOS();
+    });
+  </script>
 </body>
 </html>
