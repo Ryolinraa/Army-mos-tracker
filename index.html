@@ -51,41 +51,118 @@
     <script>
         // STARTER DATABASE: Tracks merges and consolidations
         // UPDATED VERIFIED DATABASE (1985-Present)
-        const mosDatabase = [
+       const mosDatabase = [
             {
-                category: "Enlisted - Maintenance (Ordnance)",
+                category: "Infantry (CMF 11)",
                 lineage: [
-                    { years: "1985-2009", code: "63B", title: "Light-Wheel Vehicle Mechanic (Official transition began 2004, finalized 2009)" },
-                    { years: "2004-Present", code: "91B", title: "Wheeled Vehicle Mechanic (Consolidated 63B, 63S, 63W)" }
+                    { years: "1985-2005", code: "11M", title: "Fighting Vehicle Infantryman" },
+                    { years: "1985-2005", code: "11H", title: "Heavy Anti-Armor Weapons Specialist" },
+                    { years: "1985-Present", code: "11B", title: "Infantryman (Consolidated 11M and 11H)" },
+                    { years: "1985-Present", code: "11C", title: "Indirect Fire Infantryman" }
                 ]
             },
             {
-                category: "Enlisted - Medical",
+                category: "Combat Engineers (CMF 12/21)",
                 lineage: [
-                    { years: "1985-2001", code: "91B", title: "Medical Specialist (Warning: Pre-2001 code was Medical, not Mechanic)" },
+                    { years: "1985-2004", code: "12B", title: "Combat Engineer" },
+                    { years: "2004-2009", code: "21B", title: "Combat Engineer (Temporary CMF Shift)" },
+                    { years: "2009-Present", code: "12B", title: "Combat Engineer (Reverted to 12B)" }
+                ]
+            },
+            {
+                category: "Field Artillery (CMF 13)",
+                lineage: [
+                    { years: "1985-Present", code: "13B", title: "Cannon Crewmember" },
+                    { years: "1985-Present", code: "13F", title: "Fire Support Specialist" },
+                    { years: "1985-2004", code: "13R", title: "Field Artillery Finder Radar Operator" },
+                    { years: "2004-Present", code: "13R", title: "Field Artillery Firefinder Radar Operator (Title Change)" }
+                ]
+            },
+            {
+                category: "Aviation (CMF 15/67)",
+                lineage: [
+                    { years: "1985-2004", code: "67N", title: "UH-1 Helicopter Repairer" },
+                    { years: "1985-2004", code: "67Y", title: "AH-1 Attack Helicopter Repairer" },
+                    { years: "2004-Present", code: "15T", title: "UH-60 Helicopter Repairer" },
+                    { years: "2004-Present", code: "15U", title: "CH-47 Helicopter Repairer" },
+                    { years: "2025-Present", code: "15X", title: "Unmanned Aircraft Systems Specialist (Consolidating 15E and 15W)" }
+                ]
+            },
+            {
+                category: "Armor/Cavalry (CMF 19)",
+                lineage: [
+                    { years: "1985-2004", code: "19E", title: "M60A3 Armor Crewman" },
+                    { years: "1985-Present", code: "19K", title: "M1 Armor Crewman (19E merged into 19K)" },
+                    { years: "1985-Present", code: "19D", title: "Cavalry Scout" }
+                ]
+            },
+            {
+                category: "Signal (CMF 25/31)",
+                lineage: [
+                    { years: "1985-2004", code: "31L", title: "Wire Systems Installer" },
+                    { years: "1985-2004", code: "31F", title: "Network Switching Systems Operator" },
+                    { years: "2004-2022", code: "25L", title: "Cable Systems Installer-Maintainer" },
+                    { years: "2004-2022", code: "25N", title: "Nodal Network Systems Operator" },
+                    { years: "2022-Present", code: "25H", title: "Network Communication Systems Specialist (Consolidated 25L, 25N, 25Q)" }
+                ]
+            },
+            {
+                category: "Military Police (CMF 31/95)",
+                lineage: [
+                    { years: "1985-2003", code: "95B", title: "Military Police" },
+                    { years: "2003-Present", code: "31B", title: "Military Police (CMF changed from 95 to 31)" }
+                ]
+            },
+            {
+                category: "Intelligence (CMF 35/96)",
+                lineage: [
+                    { years: "1985-2004", code: "96B", title: "Intelligence Analyst" },
+                    { years: "2004-Present", code: "35F", title: "Intelligence Analyst (Shifted from 96 to 35 series)" }
+                ]
+            },
+            {
+                category: "Admin/HR (CMF 42/71)",
+                lineage: [
+                    { years: "1985-2003", code: "71L", title: "Administrative Specialist" },
+                    { years: "1985-2003", code: "71G", title: "Patient Administration Specialist" },
+                    { years: "2003-Present", code: "42A", title: "Human Resources Specialist" }
+                ]
+            },
+            {
+                category: "Medical (CMF 68/91)",
+                lineage: [
+                    { years: "1985-2001", code: "91B", title: "Medical Specialist (Warning: Legacy Code)" },
                     { years: "2001-Present", code: "68W", title: "Combat Medic Specialist" }
                 ]
             },
             {
-                category: "Enlisted - Infantry",
+                category: "Transportation (CMF 88)",
                 lineage: [
-                    { years: "1985-2005", code: "11M", title: "Fighting Vehicle Infantryman" },
-                    { years: "2001-Present", code: "11B", title: "Infantryman (11M merged into 11B)" }
+                    { years: "1985-Present", code: "88M", title: "Motor Transport Operator" },
+                    { years: "1985-Present", code: "88N", title: "Transportation Mgmt Coordinator" }
                 ]
             },
             {
-                category: "Enlisted - Signal",
+                category: "Maintenance (CMF 91/63)",
                 lineage: [
-                    { years: "1985-2004", code: "31L", title: "Wire Systems Installer" },
-                    { years: "2004-2015", code: "25L", title: "Cable Systems Installer" },
-                    { years: "2015-Present", code: "25L/25U", title: "Signal Support Systems Specialist (Consolidated)" }
+                    { years: "1985-2009", code: "63B", title: "Light-Wheel Vehicle Mechanic" },
+                    { years: "1985-2009", code: "63S", title: "Heavy Wheel Vehicle Mechanic" },
+                    { years: "1985-2009", code: "63W", title: "Wheel Vehicle Repairer" },
+                    { years: "2004-Present", code: "91B", title: "Wheeled Vehicle Mechanic" }
+                ]
+            },
+            {
+                category: "Supply/Logistics (CMF 92/76)",
+                lineage: [
+                    { years: "1985-2004", code: "76Y", title: "Unit Supply Specialist" },
+                    { years: "2004-Present", code: "92Y", title: "Unit Supply Specialist (Shifted from 76 to 92 series)" }
                 ]
             },
             {
                 category: "Warrant Officer - Aviation",
                 lineage: [
                     { years: "1985-2004", code: "100B", title: "Utility/Observation Helicopter Pilot" },
-                    { years: "2004-Present", code: "153A", title: "Rotary Wing Aviator (Consolidated 100-series into 153A)" }
+                    { years: "2004-Present", code: "153A", title: "Rotary Wing Aviator" }
                 ]
             },
             {
@@ -93,13 +170,6 @@
                 lineage: [
                     { years: "1985-2006", code: "351B", title: "Counterintelligence Agent" },
                     { years: "2006-Present", code: "351L", title: "Counterintelligence Technician" }
-                ]
-            },
-            {
-                category: "Enlisted - Admin",
-                lineage: [
-                    { years: "1985-2003", code: "71L", title: "Administrative Specialist" },
-                    { years: "2003-Present", code: "42A", title: "Human Resources Specialist (Consolidated 71L, 71G)" }
                 ]
             }
         ];
